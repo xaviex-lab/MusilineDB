@@ -1,0 +1,16 @@
+{# cadastro\templates\cadastro\index.html #}
+
+{% extends 'cadastro/base.html' %}
+
+{% block titulo %}Início{% endblock %}
+
+{% block conteudo %}
+   <h2>{{ total }} Pessoas Cadastradas</h2>
+   <ul>
+    {% for pessoa in pessoas %}
+        <li>{{ pessoa.nome }}</li>
+    {% empty %}
+        <li>Nenhuma pessoa cadastrada ainda.</li>
+    {% endfor %}
+   </ul>
+{% endblock %}
