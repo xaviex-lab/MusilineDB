@@ -122,8 +122,8 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 # Variáveis do Aplicativo
-APP_NAME = 'Cadastro de Gente'
-APP_OWNER = 'Luferat'
+APP_NAME = 'MusiLineDB'
+APP_OWNER = 'xaviex'
 
 # URLs para retorno após login e logout
 LOGIN_REDIRECT_URL = '/'

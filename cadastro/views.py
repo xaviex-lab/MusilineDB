@@ -1,95 +1,91 @@
 # cadastro\views.py
 
 from django.shortcuts import get_object_or_404, redirect, render
-from cadastro.forms import PessoaForm, TelefoneFormSet, ContatoForm
-from cadastro.models import Pessoa
+from django.db.models import Q
+from django.http import JsonResponse
+from cadastro.forms import MusicaForm, ContatoForm
+from cadastro.models import Musica
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
 
 def index(request):
-    # Recebe todas as pessoas do banco de dados 
-    # pessoas = Pessoa.objects.all()
-
-    # Recebe todas as pessoas em ordem alfabética do nome
-    pessoas = Pessoa.objects.order_by('nome')
-
-    # Total de cadastrados
-    total = Pessoa.objects.count()
-
-    # Dicionário que passa dados para o template
+    busca = request.GET.get('q', '')
+    if busca:
+        musicas = Musica.objects.filter(
+            Q(titulo__icontains=busca) | Q(artista__icontains=busca)
+        ).order_by('titulo')
+    else:
+        musicas = Musica.objects.order_by('titulo')
+    total = Musica.objects.count()
     context = {
-        'pessoas': pessoas,
+        'musicas': musicas,
         'total': total,
+        'busca': busca,
     }
     return render(request, 'cadastro/index.html', context)
 
 
-def contato(request):
-    return render(request, 'cadastro/contato.html')
+def busca_ajax(request):
+    q = request.GET.get('q', '')
+    musicas = Musica.objects.filter(
+        Q(titulo__icontains=q) | Q(artista__icontains=q)
+    ).order_by('titulo')[:8]
+    resultado = [
+        {
+            'id': m.id,
+            'titulo': m.titulo,
+            'artista': m.artista,
+            'capa_url': m.capa_url,
+        }
+        for m in musicas
+    ]
+    return JsonResponse({'musicas': resultado})
 
 
 @login_required
 def adicionar(request):
     if request.method == 'POST':
-        form = PessoaForm(request.POST)
-        # instance=Pessoa() é necessário para o formset saber o pai
-        formset = TelefoneFormSet(request.POST, instance=Pessoa())
-
-        if form.is_valid() and formset.is_valid():
-            pessoa = form.save()             # salva e obtém o id
-            formset.instance = pessoa        # vincula os telefones à pessoa salva
-            formset.save()
-            messages.success(request, 'Pessoa adicionada com sucesso!')
+        form = MusicaForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Música adicionada com sucesso!')
             return redirect('index')
     else:
-        form = PessoaForm()
-        formset = TelefoneFormSet(instance=Pessoa())
-
-    return render(request, 'cadastro/adicionar.html', {
-        'form': form,
-        'formset': formset,
-    })
+        form = MusicaForm()
+    return render(request, 'cadastro/adicionar.html', {'form': form})
 
 
 def detalhe(request, id):
-    pessoa = get_object_or_404(Pessoa, id=id)
-    return render(request, 'cadastro/detalhe.html', {'pessoa': pessoa})
+    musica = get_object_or_404(Musica, id=id)
+    return render(request, 'cadastro/detalhe.html', {'musica': musica})
 
 
 @login_required
 def editar(request, id):
-    pessoa = get_object_or_404(Pessoa, id=id)
-
+    musica = get_object_or_404(Musica, id=id)
     if request.method == 'POST':
-        form = PessoaForm(request.POST, instance=pessoa)
-        formset = TelefoneFormSet(request.POST, instance=pessoa)
-
-        if form.is_valid() and formset.is_valid():
+        form = MusicaForm(request.POST, instance=musica)
+        if form.is_valid():
             form.save()
-            formset.save()
-            messages.success(request, f'{pessoa.nome} atualizada com sucesso!')
+            messages.success(request, f'{musica.titulo} atualizada com sucesso!')
             return redirect('detalhe', id=id)
     else:
-        form = PessoaForm(instance=pessoa)
-        formset = TelefoneFormSet(instance=pessoa)  # já carrega os telefones existentes
-
+        form = MusicaForm(instance=musica)
     return render(request, 'cadastro/editar.html', {
         'form': form,
-        'formset': formset,
-        'pessoa': pessoa,
+        'musica': musica,
     })
 
 
 @login_required
 def deletar(request, id):
-    # Só pode ser acessado por um usuátio autenticado
-    pessoa = get_object_or_404(Pessoa, id=id)
+    musica = get_object_or_404(Musica, id=id)
     if request.method == 'POST':
-        pessoa.delete()
-        messages.success(request, 'Pessoa apagada com sucesso!')
-        return redirect('index')        
-    return render(request, 'cadastro/deletar.html', {'pessoa': pessoa})
+        musica.delete()
+        messages.success(request, 'Música apagada com sucesso!')
+        return redirect('index')
+    return render(request, 'cadastro/deletar.html', {'musica': musica})
 
 
 def contato(request):

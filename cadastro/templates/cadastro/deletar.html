@@ -2,15 +2,15 @@
 
 {% extends 'cadastro/base.html' %}
 
-{% block titulo %}Deletar {{ pessoa.nome }}{% endblock %}
+{% block titulo %}Deletar {{ musica.titulo }}{% endblock %}
 
 {% block conteudo %}
-    <h2>Deletar {{ pessoa.nome }}?</h2>
+    <h2>Deletar "{{ musica.titulo }}"?</h2>
     <p>Essa ação não pode ser desfeita!</p>
 
     <form method="POST">
         {% csrf_token %}
-        <button type="submit">Confirmar</button>
-        <a href="{% url 'detalhe' pessoa.id %}">Cancelar</a>
+        <button type="submit" class="btn btn-danger">Confirmar</button>
+        <a href="{% url 'detalhe' musica.id %}" class="btn btn-secondary">Cancelar</a>
     </form>
 {% endblock %}

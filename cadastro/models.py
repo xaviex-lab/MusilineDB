@@ -2,24 +2,16 @@
 
 from django.db import models
 
-
-class Pessoa(models.Model):
-    nome = models.CharField(max_length=100)
-    email = models.EmailField()
-    idade = models.IntegerField()
-
-    def __str__(self):
-        return self.nome
-
-
-class Telefone(models.Model):
-    pessoa = models.ForeignKey(
-        Pessoa, on_delete=models.CASCADE, related_name='telefones')
-    numero = models.CharField(max_length=20)
+class Musica(models.Model):
+    titulo = models.CharField(max_length=200)
+    artista = models.CharField(max_length=200)
+    album = models.CharField(max_length=200, blank=True)
+    ano = models.IntegerField(null=True, blank=True)
+    capa_url = models.URLField(blank=True)
 
     def __str__(self):
-        return self.numero
-    
+        return f"{self.titulo} - {self.artista}"
+
 class Contato(models.Model):
     nome = models.CharField(max_length=127)
     email = models.EmailField()

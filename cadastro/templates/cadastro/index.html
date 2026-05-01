@@ -1,22 +1,39 @@
 {# cadastro\templates\cadastro\index.html #}
 
-{# `index.html` herda a estrutura de `base.html` #}
 {% extends 'cadastro/base.html' %}
 
 {% block conteudo %}
 
-    <h2>{{ total }} Pessoas Cadastradas</h2>
-    
-    <ul>
-    {% for pessoa in pessoas %}
-        <li>
-            <a href="{% url 'detalhe' pessoa.id %}">{{ pessoa.nome }}</a>
-             - {{ pessoa.email }}
-        </li>
+<h2 class="mb-3">{{ total }} Sons disponíveis:</h2>
+
+<form method="GET" class="mb-3">
+    <div class="input-group">
+        <input type="text" name="q" class="form-control" placeholder="Pesquisar faixa ou artista..." value="{{ busca }}">
+        <button class="btn btn-dark" type="submit">Buscar</button>
+    </div>
+</form>
+
+<div class="d-flex flex-column gap-2">
+    {% for musica in musicas %}
+    <div class="card shadow rounded-3">
+        <div class="d-flex align-items-center px-3 py-2 gap-3">
+            {% if musica.capa_url %}
+            <img src="{{ musica.capa_url }}" alt="Capa de {{ musica.titulo }}" width="55" height="55"
+                style="object-fit: cover; border-radius: 6px; flex-shrink: 0;">
+            {% else %}
+            <div style="width:55px; height:55px; background:#ddd; border-radius:6px; flex-shrink:0;"></div>
+            {% endif %}
+            <div class="overflow-hidden">
+                <a href="{% url 'detalhe' musica.id %}" class="text-decoration-none">
+                    <h6 class="mb-0 text-truncate">{{ musica.titulo }}</h6>
+                </a>
+                <small class="text-muted text-truncate d-block">{{ musica.artista }}</small>
+            </div>
+        </div>
+    </div>
     {% empty %}
-        <li>Ninguém está cadastrado.</li>
-        
-    {% endfor%}
-    </ul>
+    <p class="text-muted">{% if busca %}Nenhuma música encontrada para "{{ busca }}".{% else %}Nenhuma música cadastrada ainda.{% endif %}</p>
+    {% endfor %}
+</div>
 
 {% endblock %}
