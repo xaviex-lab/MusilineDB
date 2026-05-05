@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-(=z4%mt=rc)0r_lsl*2@1wr8k9zb7^)ya2fdh%n7$2uxsx=%+q
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['musiline-db.onrender.com']
+ALLOWED_HOSTS = ['musiline-db.onrender.com', 'localhost', '127.0.0.1']
 
 
 # Application definition
