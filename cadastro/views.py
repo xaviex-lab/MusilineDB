@@ -3,6 +3,8 @@
 from django.shortcuts import get_object_or_404, redirect, render
 from django.db.models import Q
 from django.http import JsonResponse
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login
 from cadastro.forms import MusicaForm, ContatoForm
 from cadastro.models import Musica
 from django.contrib.auth.decorators import login_required
@@ -86,6 +88,18 @@ def deletar(request, id):
         messages.success(request, 'Música apagada com sucesso!')
         return redirect('index')
     return render(request, 'cadastro/deletar.html', {'musica': musica})
+
+def registro(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request, f'Conta criada com sucesso! Bem-vindo, {user.username}!')
+            return redirect('index')
+    else:
+        form = UserCreationForm()
+    return render(request, 'registration/registro.html', {'form': form})
 
 
 def contato(request):

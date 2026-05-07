@@ -1,11 +1,11 @@
-{# cadastro\templates\registration\login.html #}
+{# cadastro\templates\registration\registro.html #}
 
 {% extends 'cadastro/base.html' %}
 
-{% block titulo %}Login{% endblock %}
+{% block titulo %}Criar conta{% endblock %}
 
 {% block conteudo %}
-<h2 class="mb-3">Login</h2>
+<h2 class="mb-3">Criar conta</h2>
 
 <form method="POST">
     {% csrf_token %}
@@ -17,13 +17,16 @@
                id="{{ field.id_for_label }}"
                class="form-control"
                {% if field.value %}value="{{ field.value }}"{% endif %}>
+        {% if field.help_text %}
+        <div class="form-text text-muted">{{ field.help_text }}</div>
+        {% endif %}
         {% if field.errors %}
         <div class="text-danger small">{{ field.errors }}</div>
         {% endif %}
     </div>
     {% endfor %}
-    <button class="btn btn-dark btn-sm my-1">Entrar</button>
-    <a href="{% url 'registro' %}" class="btn btn-outline-secondary btn-sm my-1">Criar conta</a>
+    <button class="btn btn-dark btn-sm my-1">Criar conta</button>
+    <a href="{% url 'login' %}" class="btn btn-outline-secondary btn-sm my-1">Já tenho conta</a>
 </form>
 
 {% endblock %}

@@ -9,11 +9,13 @@ urlpatterns = [
 
     path('adicionar/', views.adicionar, name='adicionar'),
 
-    path('pessoa/<int:id>/', views.detalhe, name='detalhe'),
+    path('faixa/<int:id>/', views.detalhe, name='detalhe'),
 
-    path('pessoa/<int:id>/editar/', views.editar, name='editar'),
+    path('faixa/<int:id>/editar/', views.editar, name='editar'),
 
-    path('pessoa/<int:id>/deletar/', views.deletar, name='deletar'),
+    path('faixa/<int:id>/deletar/', views.deletar, name='deletar'),
 
     path('busca/', views.busca_ajax, name='busca_ajax'),
+
+    path('registro/', views.registro, name='registro'),
 ]
