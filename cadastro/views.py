@@ -5,6 +5,7 @@ from django.db.models import Q
 from django.http import JsonResponse
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
+from django.core.paginator import Paginator
 from cadastro.forms import MusicaForm, ContatoForm
 from cadastro.models import Musica
 from django.contrib.auth.decorators import login_required
@@ -13,13 +14,36 @@ from django.contrib import messages
 
 def index(request):
     busca = request.GET.get('q', '')
+    pagina = request.GET.get('pagina', 1)
+    formato = request.GET.get('formato', '')
+
     if busca:
-        musicas = Musica.objects.filter(
+        musicas_lista = Musica.objects.filter(
             Q(titulo__icontains=busca) | Q(artista__icontains=busca)
         ).order_by('titulo')
     else:
-        musicas = Musica.objects.order_by('titulo')
+        musicas_lista = Musica.objects.order_by('titulo')
+
     total = Musica.objects.count()
+    paginador = Paginator(musicas_lista, 5)
+    musicas = paginador.get_page(pagina)
+
+    if formato == 'ajax':
+        resultado = [
+            {
+                'id': m.id,
+                'titulo': m.titulo,
+                'artista': m.artista,
+                'capa_url': m.capa_url,
+            }
+            for m in musicas
+        ]
+        return JsonResponse({
+            'musicas': resultado,
+            'tem_proxima': musicas.has_next(),
+            'proxima_pagina': musicas.next_page_number() if musicas.has_next() else None,
+        })
+
     context = {
         'musicas': musicas,
         'total': total,

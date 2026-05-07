@@ -18,12 +18,10 @@
     </div>
 </form>
 
-<div class="d-flex flex-column gap-2">
+<div class="d-flex flex-column gap-2" id="listaMusicais">
     {% for musica in musicas %}
     <a href="{% url 'detalhe' musica.id %}" class="text-decoration-none">
-        <div class="card border-0 shadow-sm rounded-4" style="transition: transform 0.15s, box-shadow 0.15s;"
-            onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(0,0,0,0.1)'"
-            onmouseout="this.style.transform='';this.style.boxShadow=''">
+        <div class="card border-0 shadow-sm rounded-4">
             <div class="d-flex align-items-center px-3 py-2 gap-3">
                 {% if musica.capa_url %}
                 <img src="{{ musica.capa_url }}" alt="Capa de {{ musica.titulo }}" width="52" height="52"
@@ -49,5 +47,59 @@
     </div>
     {% endfor %}
 </div>
+
+{% if musicas.has_next %}
+<div class="mt-3">
+    <button id="btnVerMais"
+        data-pagina="{{ musicas.next_page_number }}"
+        data-busca="{{ busca }}"
+        class="btn btn-link text-muted text-decoration-none p-0"
+        style="font-size: 0.9rem;">
+        ver mais
+    </button>
+</div>
+{% endif %}
+
+<script>
+    const btnVerMais = document.getElementById('btnVerMais');
+    if (btnVerMais) {
+        btnVerMais.addEventListener('click', function () {
+            const pagina = this.dataset.pagina;
+            const busca = this.dataset.busca;
+
+            fetch(`?pagina=${pagina}&q=${busca}&formato=ajax`)
+                .then(res => res.json())
+                .then(data => {
+                    const lista = document.getElementById('listaMusicais');
+                    data.musicas.forEach(m => {
+                        const item = document.createElement('a');
+                        item.href = `/musica/${m.id}/`;
+                        item.className = 'text-decoration-none';
+                        item.innerHTML = `
+                            <div class="card border-0 shadow-sm rounded-4">
+                                <div class="d-flex align-items-center px-3 py-2 gap-3">
+                                    ${m.capa_url
+                                        ? `<img src="${m.capa_url}" width="52" height="52" style="object-fit:cover; border-radius:8px; flex-shrink:0;">`
+                                        : `<div class="d-flex align-items-center justify-content-center bg-secondary bg-opacity-25" style="width:52px;height:52px;border-radius:8px;flex-shrink:0;"><i class="bi bi-music-note text-muted"></i></div>`
+                                    }
+                                    <div class="overflow-hidden flex-grow-1">
+                                        <h6 class="mb-0 text-truncate fw-semibold">${m.titulo}</h6>
+                                        <small class="text-muted text-truncate d-block">${m.artista}</small>
+                                    </div>
+                                    <i class="bi bi-chevron-right text-muted me-1"></i>
+                                </div>
+                            </div>`;
+                        lista.appendChild(item);
+                    });
+
+                    if (data.tem_proxima) {
+                        btnVerMais.dataset.pagina = data.proxima_pagina;
+                    } else {
+                        btnVerMais.remove();
+                    }
+                });
+        });
+    }
+</script>
 
 {% endblock %}
