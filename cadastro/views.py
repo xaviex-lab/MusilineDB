@@ -128,6 +128,39 @@ def registro(request):
         form = UserCreationForm()
     return render(request, 'registration/registro.html', {'form': form})
 
+from django.contrib.auth import logout as auth_logout
+
+@login_required
+def perfil(request):
+    musicas_do_usuario = Musica.objects.filter(enviado_por=request.user).order_by('titulo')
+    total_musicas = musicas_do_usuario.count()
+    return render(request, 'cadastro/perfil.html', {
+        'total_musicas': total_musicas,
+        'musicas_do_usuario': musicas_do_usuario,
+    })
+
+@login_required
+def editar_username(request):
+    if request.method == 'POST':
+        novo_username = request.POST.get('username', '').strip()
+        if novo_username:
+            request.user.username = novo_username
+            request.user.save()
+            messages.success(request, 'Nome de usuário atualizado com sucesso!')
+        else:
+            messages.error(request, 'Nome de usuário não pode ser vazio!')
+    return redirect('perfil')
+
+@login_required
+def deletar_conta(request):
+    if request.method == 'POST':
+        user = request.user
+        auth_logout(request)
+        user.delete()
+        messages.success(request, 'Conta deletada com sucesso!')
+        return redirect('index')
+    return redirect('perfil')
+
 
 def contato(request):
     if request.method == 'POST':
