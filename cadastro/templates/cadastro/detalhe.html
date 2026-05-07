@@ -25,6 +25,9 @@
         {% elif musica.ano %}
         <p class="text-muted mb-0"><i class="bi bi-calendar me-1"></i>{{ musica.ano }}</p>
         {% endif %}
+        {% if musica.enviado_por %}
+        <p class="text-muted small mt-2 mb-0"><i class="bi bi-person me-1"></i>Enviado por <strong>{{ musica.enviado_por.username }}</strong></p>
+        {% endif %}
     </div>
 </div>
 

@@ -28,6 +28,21 @@ def index(request):
     return render(request, 'cadastro/index.html', context)
 
 
+@login_required
+def adicionar(request):
+    if request.method == 'POST':
+        form = MusicaForm(request.POST)
+        if form.is_valid():
+            musica = form.save(commit=False)
+            musica.enviado_por = request.user
+            musica.save()
+            messages.success(request, 'Música adicionada com sucesso!')
+            return redirect('index')
+    else:
+        form = MusicaForm()
+    return render(request, 'cadastro/adicionar.html', {'form': form})
+
+
 def busca_ajax(request):
     q = request.GET.get('q', '')
     musicas = Musica.objects.filter(
@@ -43,19 +58,6 @@ def busca_ajax(request):
         for m in musicas
     ]
     return JsonResponse({'musicas': resultado})
-
-
-@login_required
-def adicionar(request):
-    if request.method == 'POST':
-        form = MusicaForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Música adicionada com sucesso!')
-            return redirect('index')
-    else:
-        form = MusicaForm()
-    return render(request, 'cadastro/adicionar.html', {'form': form})
 
 
 def detalhe(request, id):
@@ -88,6 +90,7 @@ def deletar(request, id):
         messages.success(request, 'Música apagada com sucesso!')
         return redirect('index')
     return render(request, 'cadastro/deletar.html', {'musica': musica})
+
 
 def registro(request):
     if request.method == 'POST':
