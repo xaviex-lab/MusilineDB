@@ -116,19 +116,21 @@ def deletar(request, id):
     return render(request, 'cadastro/deletar.html', {'musica': musica})
 
 
+from cadastro.forms import MusicaForm, ContatoForm, RegistroForm
+
 def registro(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = RegistroForm(request.POST)
         if form.is_valid():
-            user = form.save()
+            user = form.save(commit=False)
+            user.email = form.cleaned_data['email']
+            user.save()
             login(request, user)
             messages.success(request, f'Conta criada com sucesso! Bem-vindo, {user.username}!')
             return redirect('index')
     else:
-        form = UserCreationForm()
+        form = RegistroForm()
     return render(request, 'registration/registro.html', {'form': form})
-
-from django.contrib.auth import logout as auth_logout
 
 @login_required
 def perfil(request):
@@ -160,6 +162,8 @@ def deletar_conta(request):
         messages.success(request, 'Conta deletada com sucesso!')
         return redirect('index')
     return redirect('perfil')
+
+from cadastro.forms import MusicaForm, ContatoForm, RegistroForm
 
 
 def contato(request):
