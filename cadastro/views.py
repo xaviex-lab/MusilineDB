@@ -173,6 +173,16 @@ def deletar_conta(request):
         return redirect('index')
     return redirect('perfil')
 
+def perfil_publico(request, username):
+    from django.contrib.auth.models import User
+    usuario = get_object_or_404(User, username=username)
+    musicas_do_usuario = Musica.objects.filter(enviado_por=usuario).order_by('titulo')
+    return render(request, 'cadastro/perfil_publico.html', {
+        'usuario': usuario,
+        'musicas_do_usuario': musicas_do_usuario,
+        'total_musicas': musicas_do_usuario.count(),
+    })
+
 
 def contato(request):
     if request.method == 'POST':

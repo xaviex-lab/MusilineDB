@@ -15,4 +15,5 @@ urlpatterns = [
     path('perfil/', views.perfil, name='perfil'),
     path('perfil/deletar/', views.deletar_conta, name='deletar_conta'),
     path('perfil/editar-username/', views.editar_username, name='editar_username'),
+    path('perfil/<str:username>/', views.perfil_publico, name='perfil_publico'),
 ]
