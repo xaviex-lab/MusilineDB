@@ -3,13 +3,12 @@
 from django.shortcuts import get_object_or_404, redirect, render
 from django.db.models import Q
 from django.http import JsonResponse
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth import login
-from django.core.paginator import Paginator
-from cadastro.forms import MusicaForm, ContatoForm
-from cadastro.models import Musica
+from django.contrib.auth import login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.core.paginator import Paginator
+from cadastro.forms import MusicaForm, ContatoForm, RegistroForm
+from cadastro.models import Musica
 
 
 def index(request):
@@ -92,6 +91,11 @@ def detalhe(request, id):
 @login_required
 def editar(request, id):
     musica = get_object_or_404(Musica, id=id)
+
+    if musica.enviado_por != request.user:
+        messages.error(request, 'Você não tem permissão para editar essa faixa!')
+        return redirect('detalhe', id=id)
+
     if request.method == 'POST':
         form = MusicaForm(request.POST, instance=musica)
         if form.is_valid():
@@ -109,14 +113,17 @@ def editar(request, id):
 @login_required
 def deletar(request, id):
     musica = get_object_or_404(Musica, id=id)
+
+    if musica.enviado_por != request.user:
+        messages.error(request, 'Você não tem permissão para excluir essa faixa!')
+        return redirect('detalhe', id=id)
+
     if request.method == 'POST':
         musica.delete()
         messages.success(request, 'Música apagada com sucesso!')
         return redirect('index')
     return render(request, 'cadastro/deletar.html', {'musica': musica})
 
-
-from cadastro.forms import MusicaForm, ContatoForm, RegistroForm
 
 def registro(request):
     if request.method == 'POST':
@@ -132,6 +139,7 @@ def registro(request):
         form = RegistroForm()
     return render(request, 'registration/registro.html', {'form': form})
 
+
 @login_required
 def perfil(request):
     musicas_do_usuario = Musica.objects.filter(enviado_por=request.user).order_by('titulo')
@@ -140,6 +148,7 @@ def perfil(request):
         'total_musicas': total_musicas,
         'musicas_do_usuario': musicas_do_usuario,
     })
+
 
 @login_required
 def editar_username(request):
@@ -153,6 +162,7 @@ def editar_username(request):
             messages.error(request, 'Nome de usuário não pode ser vazio!')
     return redirect('perfil')
 
+
 @login_required
 def deletar_conta(request):
     if request.method == 'POST':
@@ -162,8 +172,6 @@ def deletar_conta(request):
         messages.success(request, 'Conta deletada com sucesso!')
         return redirect('index')
     return redirect('perfil')
-
-from cadastro.forms import MusicaForm, ContatoForm, RegistroForm
 
 
 def contato(request):
